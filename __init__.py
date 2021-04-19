@@ -1,5 +1,5 @@
-from choice import choice
-from dice import roll_dices
+from .choice import choice
+from .dice import roll_dices
 
 def exec_command (command: str) -> str:
 
