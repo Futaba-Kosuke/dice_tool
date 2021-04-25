@@ -6,7 +6,7 @@ from mojimoji import zen_to_han
 
 # コマンドを分割
 def command_splitter (string: str) -> List[str]:
-    return sum([re.split('(\-)', _) for _ in re.split('(\+)', string)], [])
+    return re.split('(\w+)', string)[1:-1]
 
 # ダイスを振る
 def roll_dice (dice: str) -> List[int]:
@@ -25,50 +25,45 @@ def roll_dice (dice: str) -> List[int]:
 def roll_dices (command: str) -> str:
 
     elements = command_splitter(zen_to_han(command))
+
     result = ''
-    total = 0
+    formula = ''
+    for elem in elements:
 
-    is_plus = True
-
-    for i, elem in enumerate(elements):
-        if elem == '+':
-            result += elem
-            is_plus = True
-
-        elif elem == '-':
-            result += elem
-            is_plus = False
-
-        elif 'd' in elem:
+        if 'd' in elem:
             rolled = roll_dice(elem)
 
             if rolled == [0]:
-                result += '0 '
+                result += '0'
                 continue
 
             result += f'{sum(rolled)}[{", ".join(map(str, rolled))}]'
-            if is_plus:
-                total += sum(rolled)
-            else:
-                total -= sum(rolled)
+            formula += f'{sum(rolled)}'
 
         else:
             result += elem
-            if is_plus:
-                total += int(elem)
-            else:
-                total -= int(elem)
+            formula += elem
 
-        result += ' '
+    result = re.split('>=|>|<=|<|==', result)[0]
+    total = eval(re.split('>=|>|<=|<|==', formula)[0])
+
+    if not len(re.findall('>=|>|<=|<|==', formula)):
+        judge = ''
+
+    elif eval(formula):
+        judge = ' ＞ 成功'
+
+    else:
+        judge = ' ＞ 失敗'
     
-    result = f'({command}) ＞ {result}＞ {str(total)}'
+    result = f'({command}) ＞ {result} ＞ {str(total)}{judge}'
 
     return result
 
 def main():
     command = input('command >> ').split()[0]
-    result = exec_command(command)
+    result = roll_dices(command)
     print(result)
 
 if __name__ == '__main__':
-    main()
+    mai()
